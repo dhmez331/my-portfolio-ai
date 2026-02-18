@@ -12,6 +12,9 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 
+
+from langchain.chat_models import ChatGroq
+from langchain.schema import HumanMessage, SystemMessage
 load_dotenv()
 
 app = Flask(__name__)
@@ -124,11 +127,40 @@ def ask_ai():
 
         # استخدام gemini-1.5-flash للسرعة والكفاءة
         # استخدام Groq مع موديل Llama 3 الخارق والأسطوري
+#         llm = ChatGroq(
+#     api_key=os.getenv("GROQ_API_KEY"),
+#     model_name="llama-3.1-8b-instant",  # نسخة أخف وأسرع ومناسبة للبوت
+#     temperature=0.3
+# )
+
+        
+
         llm = ChatGroq(
-    api_key=os.getenv("GROQ_API_KEY"),
-    model_name="llama-3.1-8b-instant",  # نسخة أخف وأسرع ومناسبة للبوت
-    temperature=0.3
-)
+            api_key=os.getenv("GROQ_API_KEY"),
+            model_name="llama-3.3-70b-versatile",
+            temperature=0.7
+        )
+
+# السطر اللي يحدد شخصية البوت
+        system_prompt = """
+        أنت الآن دحمان بوت، المساعد الشخصي لعبدالرحمن.
+        تحدث بصيغة مرحة، ودعابة خفيفة، وكأنك صديق قديم.
+        عندما يُسأل عن عبدالرحمن تحدث عنه كأنه شخص حقيقي ثاني بطريقة مرحة.
+        """
+
+        def ask_dahman_bot(user_input):
+            response = llm(
+                [
+                    SystemMessage(content=system_prompt),
+                    HumanMessage(content=user_input)
+                ]
+            )
+            return response.content
+
+        # تجربة
+        print(ask_dahman_bot("من أنت؟"))
+        print(ask_dahman_bot("من هو عبدالرحمن؟"))
+
 
         retriever = vector_store.as_retriever()
 
