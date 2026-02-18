@@ -4,6 +4,7 @@ gunicorn==21.2.0
 langchain==0.1.0
 langchain-google-genai==0.0.5
 langchain-community==0.0.10
+langchain-text-splitters
 sentence-transformers==2.2.2
 faiss-cpu>=1.12.0
 pypdf==3.17.4
