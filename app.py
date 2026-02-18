@@ -30,11 +30,14 @@ vector_store = None
 
 def initialize_rag():
     global vector_store
-    data_folder = "data"
+    # استخدام المسار المطلق لضمان الوصول للمجلد في السيرفر
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    data_folder = os.path.join(base_dir, "data")
     
-    if not os.path.exists(data_folder):
-        print("⚠️ تنبيه: مجلد data غير موجود")
+    if not os.path.exists(data_folder) or not os.listdir(data_folder):
+        print(f"⚠️ تنبيه: المجلد {data_folder} غير موجود أو فارغ")
         return
+    # بقية الكود...
 
     print("⏳ جاري قراءة كل السير الذاتية وتحميلها سحابياً...")
     try:
