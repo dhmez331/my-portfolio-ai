@@ -123,7 +123,7 @@ def ask_ai():
         ])
 
         # استخدام gemini-1.5-flash للسرعة والكفاءة
-        llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.7)
+        llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.7)
         retriever = vector_store.as_retriever()
 
         rag_chain = (
