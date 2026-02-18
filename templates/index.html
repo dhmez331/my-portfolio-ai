@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abdulrahman Asban | Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="dark-mode rtl">
+
+    <div id="particles-js"></div>
+
+    <nav>
+        <div class="container nav-content">
+            <div class="logo">A. Asban</div>
+            
+            <div class="nav-controls">
+                <button id="theme-toggle" class="icon-btn">☀️</button>
+                <label class="switch">
+            <input type="checkbox" id="langToggle" checked>
+            <span class="slider">
+                <span class="lang-text en-text">EN</span>
+                <span class="lang-text ar-text">ع</span>
+            </span>
+        </label>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container">
+            <h1 id="hero-title" class="reveal-up">أهلاً، أنا عبد الرحمن عصبان 👋</h1>
+            <p class="hero-subtitle reveal-up">
+                <span id="static-txt">أنا </span>
+                <span id="typing-text" class="highlight-text"></span><span class="cursor">|</span>
+            </p>
+
+            <div class="buttons reveal-up">
+                <a href="#contact-form-section" class="btn primary" id="btn-contact">تواصل معي</a>
+                <a href="#projects" class="btn secondary" id="btn-projects">مشاريعي</a>
+                
+                <a href="{{ url_for('static', filename='resume_en.pdf') }}" download="Abdulrahman_CV.pdf" id="btn-download-cv" class="btn secondary" style="border-color: #2ecc71; color: #2ecc71;">📥 تحميل الـ CV</a>
+            </div>
+        </div>
+    </header>
+
+    <section id="ai-chat" class="section reveal-up">
+        <div class="container">
+            <div class="chat-wrapper">
+                <div class="chat-header">
+                    <h2 id="ai-title">🤖 اسأل "دحمان بوت" عني</h2>
+                    <p id="ai-sub" class="subtitle">مساعدي الشخصي (يعمل بـ Gemini AI)</p>
+                </div>
+                
+                <div class="chat-box" id="chat-box">
+                    <div class="message bot" id="ai-welcome">هلا! أنا دحمان بوت. اسألني أي شيء عن عبد الرحمن من الـ CV حقه! 😎</div>
+                </div>
+
+                <div class="chat-input-area">
+                    <input type="text" id="user-input" placeholder="اكتب سؤالك هنا...">
+                    <button id="btn-send" onclick="sendMessage()">إرسال</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="section reveal">
+        <div class="container">
+            <h2 id="exp-title">الخبرات والتعليم</h2>
+            <div class="grid-2">
+                <div class="card reveal-left">
+                    <h3>AI Intern - Innovation Team</h3>
+                    <p id="exp-1">تدريب مهني لمدة 4 أشهر في الرياض. تصميم وتطوير أنظمة RAG باستخدام LLMs، ودمج حلول الذكاء الاصطناعي في منتجات حقيقية.</p>
+                </div>
+                <div class="card reveal-right">
+                    <h3>Education - APU Malaysia</h3>
+                    <p id="edu-1">بكالوريوس علوم حاسب (ذكاء اصطناعي) مع مرتبة الشرف. شهادة مزدوجة مع جامعة De Montfort البريطانية.</p>
+                </div>
+            </div>
+
+            <h2 id="skills-title" style="margin-top: 50px;">المهارات التقنية</h2>
+            <div class="skills-container reveal-up">
+                <div class="skill-category">
+                    <h4 id="cat-prog">💻 لغات البرمجة</h4>
+                    <div class="skills-list"><span>Python</span><span>Java</span><span>C#</span><span>SQL</span><span>R</span><span>JavaScript</span></div>
+                </div>
+                <div class="skill-category">
+                    <h4 id="cat-ai">🤖 الذكاء الاصطناعي</h4>
+                    <div class="skills-list"><span>RAG Systems</span><span>LLMs</span><span>Prompt Engineering</span><span>Data Analysis</span></div>
+                </div>
+                <div class="skill-category">
+                    <h4 id="cat-web">🌐 الويب والسحابة</h4>
+                    <div class="skills-list"><span>React</span><span>ASP.NET</span><span>HTML/CSS</span><span>OCI</span><span>Linux</span></div>
+                </div>
+                <div class="skill-category">
+                    <h4 id="cat-db">🗄️ قواعد البيانات والمفاهيم</h4>
+                    <div class="skills-list"><span>MySQL</span><span>OOP</span><span>ERD & Normalization</span><span>RBAC</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="projects" class="section bg-alt reveal">
+        <div class="container">
+            <h2 id="projects-title">أبرز مشاريعي</h2>
+            <p class="section-subtitle" id="projects-sub">مجموعة من المشاريع الأكاديمية والشخصية التي تعكس خبرتي العملية</p>
+            <div class="projects-grid">
+                
+                <div class="project-card reveal-up">
+                    <div class="card-icon">🌐</div>
+                    <h3 id="p1-title">Portfolio & RAG Chatbot</h3>
+                    <p id="p1-desc">موقع شخصي متكامل مدمج ببوت محادثة ذكي مدرب على بيانات سيرتي الذاتية.</p>
+                    <div class="tech-stack"><span>Python</span><span>React</span><span>LLM</span></div>
+                </div>
+
+                <div class="project-card reveal-up">
+                    <div class="card-icon">🤖</div>
+                    <h3 id="p2-title">AI Housing Chatbot</h3>
+                    <p id="p2-desc">بوت محادثة لمساعدة طلاب الجامعة في العثور على سكن مناسب بناءً على قاعدة معرفة.</p>
+                    <div class="tech-stack"><span>Botpress</span><span>Knowledge Base</span></div>
+                </div>
+
+                <div class="project-card reveal-up">
+                    <div class="card-icon">🏨</div>
+                    <h3 id="p3-title">Booking System</h3>
+                    <p id="p3-desc">نظام حجز فنادق ورحلات طيران متعدد المستخدمين يعتمد على البرمجة الكائنية.</p>
+                    <div class="tech-stack"><span>Python</span><span>OOP</span><span>RBAC</span></div>
+                </div>
+
+                <div class="project-card reveal-up">
+                    <div class="card-icon">🚗</div>
+                    <h3 id="p4-title">Car Maintenance System</h3>
+                    <p id="p4-desc">تطبيق سطح مكتب لإدارة شركة صيانة سيارات مع واجهة رسومية وصلاحيات متعددة.</p>
+                    <div class="tech-stack"><span>C#</span><span>ASP.NET</span></div>
+                </div>
+
+                <div class="project-card reveal-up">
+                    <div class="card-icon">🐍</div>
+                    <h3 id="p5-title">PyLearn Platform</h3>
+                    <p id="p5-desc">منصة تعليمية متكاملة لتدريس لغة بايثون للمبتدئين مع نظام اختبارات وشهادات.</p>
+                    <div class="tech-stack"><span>ASP.NET</span><span>C#</span><span>JS</span></div>
+                </div>
+
+                <div class="project-card reveal-up">
+                    <div class="card-icon">📊</div>
+                    <h3 id="p6-title">Data Analysis Project</h3>
+                    <p id="p6-desc">تنظيف وتحليل مجموعات بيانات ضخمة واستخراج رؤى إحصائية وعرضها بصرياً.</p>
+                    <div class="tech-stack"><span>R Language</span><span>Statistics</span></div>
+                </div>
+
+                <div class="project-card reveal-up">
+                    <div class="card-icon">🍄</div>
+                    <h3 id="p7-title">Mushroom Chaos Game</h3>
+                    <p id="p7-desc">لعبة منصات 2D مستوحاة من ماريو، تتضمن فيزياء اللعب واكتشاف التصادم.</p>
+                    <div class="tech-stack"><span>Python</span><span>Pygame</span></div>
+                </div>
+
+                <div class="project-card reveal-up">
+                    <div class="card-icon">📧</div>
+                    <h3 id="p8-title">Email Server System</h3>
+                    <p id="p8-desc">بناء بنية تحتية كاملة لخادم بريد إلكتروني وإدارة الشبكات باستخدام الأنظمة الوهمية.</p>
+                    <div class="tech-stack"><span>Linux</span><span>VirtualBox</span><span>DNS</span></div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <div id="contact-form-section" class="container reveal-up" style="margin: 80px auto; max-width: 600px;">
+        <h3 id="contact-title" style="text-align: center;">أرسل لي رسالة 📩</h3>
+        <div class="card">
+            <input type="text" id="contact-name" placeholder="الاسم" style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); box-sizing: border-box;">
+            
+            <input type="email" id="contact-email" placeholder="الإيميل" style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); box-sizing: border-box;">
+            
+            <textarea id="contact-msg" rows="4" placeholder="الرسالة..." style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); box-sizing: border-box; resize: vertical;"></textarea>
+            
+            <button id="btn-send-email" onclick="sendEmail()" class="btn primary" style="width: 100%; border-radius: 8px; font-size: 1.1rem;">إرسال الآن</button>
+            <p id="email-status" style="text-align: center; margin-top: 15px; font-weight: bold;"></p>
+        </div>
+    </div>
+
+    <footer id="footer" style="text-align: center; padding: 30px 20px; border-top: 1px solid var(--border-color); margin-top: 50px;">
+        <p style="margin: 0; font-weight: 600; color: var(--text-color);">Abdulrahman Asban © 2026</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
