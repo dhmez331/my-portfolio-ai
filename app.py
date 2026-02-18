@@ -29,38 +29,43 @@ mail = Mail(app)
 vector_store = None
 
 def initialize_rag():
+    """تهيئة ذاكرة الذكاء الاصطناعي وقراءة ملفات الـ PDF"""
     global vector_store
+    
     # استخدام المسار المطلق لضمان الوصول للمجلد في السيرفر
     base_dir = os.path.dirname(os.path.abspath(__file__))
     data_folder = os.path.join(base_dir, "data")
     
+    # التحقق من وجود المجلد والملفات
     if not os.path.exists(data_folder) or not os.listdir(data_folder):
         print(f"⚠️ تنبيه: المجلد {data_folder} غير موجود أو فارغ")
-        return
-    # بقية الكود...
+        return False
 
-    print("⏳ جاري قراءة كل السير الذاتية وتحميلها سحابياً...")
+    print("⏳ جاري قراءة الملفات وبناء الذاكرة سحابياً...")
     try:
-        # قراءة الملفات
+        # قراءة الملفات من مجلد data
         loader = PyPDFDirectoryLoader(data_folder)
         docs = loader.load()
         
-        # تقسيم النصوص
+        # تقسيم النصوص إلى أجزاء صغيرة
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
         splits = text_splitter.split_documents(docs)
         
-        # الحل السحري: استخدام Embeddings جوجل بدلاً من التحميل المحلي لتوفير الذاكرة
+        # استخدام Embeddings جوجل السحابية لتوفير الذاكرة (RAM)
         embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
         
+        # إنشاء مخزن المتجهات (Vector Store)
         vector_store = FAISS.from_documents(splits, embeddings)
-        print("✅ تم تجهيز دحمان بوت بنجاح باستخدام Google Cloud Embeddings!")
+        print("✅ تم تجهيز دحمان بوت بنجاح!")
+        return True
     except Exception as e:
         print(f"❌ حدث خطأ أثناء تجهيز AI: {e}")
+        return False
 
 def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
 
-# تشغيل التهيئة عند بدء التشغيل
+# محاولة التهيئة عند بدء التشغيل
 initialize_rag()
 
 @app.route('/')
@@ -73,8 +78,13 @@ def ask_ai():
     data = request.json
     user_question = data.get('message', '')
 
+    # --- الحركة الذكية: محاولة إعادة بناء الذاكرة إذا كانت فارغة عند السؤال ---
     if not vector_store:
-        return jsonify({"answer": "عذراً، دحمان بوت لم يستطع قراءة ملف الـ CV. تأكد من رفعه بشكل صحيح."})
+        print("🔄 الذاكرة فارغة، محاولة إعادة التهيئة الآن...")
+        initialize_rag()
+
+    if not vector_store:
+        return jsonify({"answer": "عذراً، دحمان بوت لم يستطع قراءة ملف الـ CV. تأكد من وجود ملفات PDF في مجلد data."})
 
     try:
         system_prompt = """
@@ -85,21 +95,21 @@ def ask_ai():
         - Full Name in Arabic: عبدالرحمن عوض سعيد عصبان
         - Email: abdulrahmanasban@gmail.com
         - Phone: +966557825658 (Saudi) or +601112421154 (Malaysia) 
-        - Linkedin: ABDULRAHMAN ASBAN or direct link: https://www.linkedin.com/in/abdulrahman-asban-1196a037a/ 
+        - Linkedin: https://www.linkedin.com/in/abdulrahman-asban-1196a037a/ 
         
-        FORMATTING RULES (VERY IMPORTANT):
+        FORMATTING RULES:
         1. NEVER write a long single block of text.
-        2. ALWAYS use short paragraphs (1-2 sentences max per paragraph).
-        3. Use bullet points (-) or numbered lists when talking about skills, experience, projects, or languages.
-        4. Use bold text (**text**) to highlight important keywords.
+        2. ALWAYS use short paragraphs.
+        3. Use bullet points (-) for lists.
+        4. Use bold text (**text**) for keywords.
         
         Your Task: Answer questions based on the provided context AND the Crucial Facts above.
         
         Rules:
         1. If asked in Arabic -> Reply in Arabic (Saudi dialect).
         2. If asked in English -> Reply in English.
-        3. If the user asks about his name, ALWAYS use the exact Arabic name: "عبدالرحمن عوض سعيد عصبان".
-        4. If the user asks how to contact him, ALWAYS provide the email and phone numbers and Linkedin.
+        3. If the user asks about his name, ALWAYS use: "عبدالرحمن عوض سعيد عصبان".
+        4. If the user asks how to contact him, ALWAYS provide the email, phone numbers, and Linkedin.
         5. If the answer is not in the context, say: "Wallah madri! Ask Abdulrahman directly."
         
         Context:
@@ -111,7 +121,7 @@ def ask_ai():
             ("human", "{input}"),
         ])
 
-        # استخدام نسخة فلاش لسرعة الاستجابة
+        # استخدام gemini-1.5-flash للسرعة والكفاءة
         llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.7)
         retriever = vector_store.as_retriever()
 
