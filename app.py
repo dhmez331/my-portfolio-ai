@@ -52,7 +52,7 @@ def initialize_rag():
         splits = text_splitter.split_documents(docs)
         
         # استخدام Embeddings جوجل السحابية لتوفير الذاكرة (RAM)
-        embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-3-small")
+        embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
 
         
         # إنشاء مخزن المتجهات (Vector Store)
