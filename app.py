@@ -67,7 +67,7 @@ def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
 
 # محاولة التهيئة عند بدء التشغيل
-initialize_rag()
+#initialize_rag()
 
 @app.route('/')
 def home():
