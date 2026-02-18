@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, request, jsonify
 from flask_mail import Mail, Message
 from dotenv import load_dotenv
-
+from langchain_groq import ChatGroq
 # المكتبات الأساسية لـ RAG
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -123,7 +123,12 @@ def ask_ai():
         ])
 
         # استخدام gemini-1.5-flash للسرعة والكفاءة
-        llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash-latest", temperature=0.7)
+        # استخدام Groq مع موديل Llama 3 الخارق والأسطوري
+        llm = ChatGroq(
+            api_key=os.getenv("GROQ_API_KEY"),
+            model_name="llama3-8b-8192",
+            temperature=0.7
+        )
         retriever = vector_store.as_retriever()
 
         rag_chain = (
