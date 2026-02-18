@@ -2,19 +2,21 @@ import os
 from flask import Flask, render_template, request, jsonify
 from flask_mail import Mail, Message
 from dotenv import load_dotenv
+
+# استدعاء ChatGroq من langchain_groq
 from langchain_groq import ChatGroq
-# المكتبات الأساسية لـ RAG
+
+# مكتبات RAG
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 
-
-from langchain.chat_models import ChatGroq
 from langchain.schema import HumanMessage, SystemMessage
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -32,34 +34,26 @@ mail = Mail(app)
 vector_store = None
 
 def initialize_rag():
-    """تهيئة ذاكرة الذكاء الاصطناعي وقراءة ملفات الـ PDF"""
+    """تهيئة ذاكرة الذكاء الاصطناعي وقراءة ملفات PDF"""
     global vector_store
-    
-    # استخدام المسار المطلق لضمان الوصول للمجلد في السيرفر
     base_dir = os.path.dirname(os.path.abspath(__file__))
     data_folder = os.path.join(base_dir, "data")
     
-    # التحقق من وجود المجلد والملفات
     if not os.path.exists(data_folder) or not os.listdir(data_folder):
         print(f"⚠️ تنبيه: المجلد {data_folder} غير موجود أو فارغ")
         return False
 
     print("⏳ جاري قراءة الملفات وبناء الذاكرة سحابياً...")
     try:
-        # قراءة الملفات من مجلد data
         loader = PyPDFDirectoryLoader(data_folder)
         docs = loader.load()
         
-        # تقسيم النصوص إلى أجزاء صغيرة
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
         splits = text_splitter.split_documents(docs)
         
-        # استخدام Embeddings جوجل السحابية لتوفير الذاكرة (RAM)
         embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
-
-        
-        # إنشاء مخزن المتجهات (Vector Store)
         vector_store = FAISS.from_documents(splits, embeddings)
+        
         print("✅ تم تجهيز دحمان بوت بنجاح!")
         return True
     except Exception as e:
@@ -69,8 +63,7 @@ def initialize_rag():
 def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
 
-# محاولة التهيئة عند بدء التشغيل
-#initialize_rag()
+# initialize_rag()  # يمكن تشغيلها عند البداية لو تحب
 
 @app.route('/')
 def home():
@@ -82,91 +75,59 @@ def ask_ai():
     data = request.json
     user_question = data.get('message', '')
 
-    # --- الحركة الذكية: محاولة إعادة بناء الذاكرة إذا كانت فارغة عند السؤال ---
+    # إعادة تهيئة الذاكرة لو كانت فارغة
     if not vector_store:
         print("🔄 الذاكرة فارغة، محاولة إعادة التهيئة الآن...")
         initialize_rag()
 
     if not vector_store:
-        return jsonify({"answer": "عذراً، دحمان بوت لم يستطع قراءة ملف الـ CV. تأكد من وجود ملفات PDF في مجلد data."})
+        return jsonify({"answer": "عذراً، دحمان بوت لم يستطع قراءة ملفات PDF. تأكد من وجودها في مجلد data."})
 
     try:
+        # دمج Crucial Facts + شخصية مرحة
         system_prompt = """
-        You are 'DahmanBot' 🤖, the AI assistant for Abdulrahman.
-        Personality: Friendly, funny, casual, uses emojis.
+        أنت الآن 'دحمان بوت' 🤖، المساعد الشخصي لعبدالرحمن.
+        شخصية: مرحة، دعابة خفيفة، وكأنك صديق قديم. استخدم إيموجي.
         
-        CRUCIAL FACTS (Memorize these, they OVERRIDE the PDF context):
-        - Full Name in Arabic: عبدالرحمن عوض سعيد عصبان
-        - Email: abdulrahmanasban@gmail.com
-        - Phone: +966557825658 (Saudi) or +601112421154 (Malaysia) 
-        - Linkedin: https://www.linkedin.com/in/abdulrahman-asban-1196a037a/ 
+        معلومات مهمة (Crucial Facts):
+        - الاسم الكامل: عبدالرحمن عوض سعيد عصبان
+        - البريد: abdulrahmanasban@gmail.com
+        - الهاتف: +966557825658 (سعودي) أو +601112421154 (ماليزيا)
+        - Linkedin: https://www.linkedin.com/in/abdulrahman-asban-1196a037a/
         
-        FORMATTING RULES:
-        1. NEVER write a long single block of text.
-        2. ALWAYS use short paragraphs.
-        3. Use bullet points (-) for lists.
-        4. Use bold text (**text**) for keywords.
-        
-        Your Task: Answer questions based on the provided context AND the Crucial Facts above.
-        
-        Rules:
-        1. If asked in Arabic -> Reply in Arabic (Saudi dialect).
-        2. If asked in English -> Reply in English.
-        3. If the user asks about his name, ALWAYS use: "عبدالرحمن عوض سعيد عصبان".
-        4. If the user asks how to contact him, ALWAYS provide the email, phone numbers, and Linkedin.
-        5. If the answer is not in the context, say: "Wallah madri! Ask Abdulrahman directly."
-        
-        Context:
-        {context}
+        القواعد:
+        1. إذا سألوا عن عبدالرحمن، تحدث عنه كأنه شخص ثاني بطريقة مرحة.
+        2. استخدم فقرات قصيرة وقوائم نقطية.
+        3. إذا السؤال مش موجود في المعلومات، قل: "Wallah madri! Ask Abdulrahman directly."
+        4. الرد بالعربية السعودية إذا كان السؤال بالعربي، وبالإنجليزي إذا كان السؤال بالإنجليزي.
         """
 
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", system_prompt),
-            ("human", "{input}"),
-        ])
-
-        # استخدام gemini-1.5-flash للسرعة والكفاءة
-        # استخدام Groq مع موديل Llama 3 الخارق والأسطوري
-#         llm = ChatGroq(
-#     api_key=os.getenv("GROQ_API_KEY"),
-#     model_name="llama-3.1-8b-instant",  # نسخة أخف وأسرع ومناسبة للبوت
-#     temperature=0.3
-# )
-
-        
-
+        # تهيئة LLM Groq
         llm = ChatGroq(
             api_key=os.getenv("GROQ_API_KEY"),
             model_name="llama-3.3-70b-versatile",
             temperature=0.7
         )
 
-# السطر اللي يحدد شخصية البوت
-        system_prompt = """
-        أنت الآن دحمان بوت، المساعد الشخصي لعبدالرحمن.
-        تحدث بصيغة مرحة، ودعابة خفيفة، وكأنك صديق قديم.
-        عندما يُسأل عن عبدالرحمن تحدث عنه كأنه شخص حقيقي ثاني بطريقة مرحة.
-        """
-
         def ask_dahman_bot(user_input):
-            response = llm(
-                [
-                    SystemMessage(content=system_prompt),
-                    HumanMessage(content=user_input)
-                ]
-            )
+            response = llm([
+                SystemMessage(content=system_prompt),
+                HumanMessage(content=user_input)
+            ])
             return response.content
 
-        # تجربة
+        # تجربة قصيرة
         print(ask_dahman_bot("من أنت؟"))
         print(ask_dahman_bot("من هو عبدالرحمن؟"))
 
-
+        # استخدام الـ RAG
         retriever = vector_store.as_retriever()
-
         rag_chain = (
             {"context": retriever | format_docs, "input": RunnablePassthrough()}
-            | prompt
+            | ChatPromptTemplate.from_messages([
+                ("system", system_prompt),
+                ("human", "{input}")
+            ])
             | llm
             | StrOutputParser()
         )
@@ -176,7 +137,7 @@ def ask_ai():
 
     except Exception as e:
         print(f"AI Error: {e}")
-        return jsonify({"answer": "صار فيه خطأ تقني بسيط 😵‍ض. حاول مرة ثانية!"})
+        return jsonify({"answer": "صار فيه خطأ تقني بسيط 😵‍💫. حاول مرة ثانية!"})
 
 @app.route('/send_email', methods=['POST'])
 def send_email():
