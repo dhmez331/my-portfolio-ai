@@ -125,10 +125,11 @@ def ask_ai():
         # استخدام gemini-1.5-flash للسرعة والكفاءة
         # استخدام Groq مع موديل Llama 3 الخارق والأسطوري
         llm = ChatGroq(
-            api_key=os.getenv("GROQ_API_KEY"),
-            model_name="llama3-8b-8192",
-            temperature=0.7
-        )
+    api_key=os.getenv("GROQ_API_KEY"),
+    model_name="llama-3.1-8b-instant",  # نسخة أخف وأسرع ومناسبة للبوت
+    temperature=0.3
+)
+
         retriever = vector_store.as_retriever()
 
         rag_chain = (
