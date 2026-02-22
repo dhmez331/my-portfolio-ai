@@ -59,7 +59,7 @@ const langToggle = document.getElementById('langToggle');
 langToggle.addEventListener('change', function() {
     let selected = this.checked ? 'ar' : 'en';
     setLanguage(selected);
-    localStorage.setItem('savedLang', selected); // الحفظ في المتصفح
+    localStorage.setItem('savedLang', selected);
 });
 
 function setLanguage(lang) {
@@ -67,7 +67,6 @@ function setLanguage(lang) {
     const t = translations[lang];
     const body = document.body;
 
-    // تحديث النصوص الأساسية
     document.getElementById('hero-title').innerText = t.heroTitle;
     document.getElementById('static-txt').innerText = t.staticTxt;
     document.getElementById('btn-contact').innerText = t.btnContact;
@@ -83,17 +82,14 @@ function setLanguage(lang) {
     document.getElementById('edu-1').innerText = t.edu1;
     document.getElementById('skills-title').innerText = t.skillsTitle;
     
-    // تحديث فئات المهارات
     document.getElementById('cat-prog').innerText = t.catProg;
     document.getElementById('cat-ai').innerText = t.catAi;
     document.getElementById('cat-web').innerText = t.catWeb;
     document.getElementById('cat-db').innerText = t.catDb;
 
-    // تحديث قسم المشاريع
     document.getElementById('projects-title').innerText = t.projectsTitle;
     document.getElementById('projects-sub').innerText = t.projectsSub;
 
-    // تحديث البطاقات
     document.getElementById('p1-title').innerText = t.p1Title;
     document.getElementById('p1-desc').innerText = t.p1Desc;
     document.getElementById('p2-title').innerText = t.p2Title;
@@ -111,12 +107,10 @@ function setLanguage(lang) {
     document.getElementById('p8-title').innerText = t.p8Title;
     document.getElementById('p8-desc').innerText = t.p8Desc;
 
-    // تحديث صندوق المحادثة
     document.getElementById('btn-send').innerText = t.sendBtn;
     document.getElementById('user-input').placeholder = t.inputPlaceholder;
     document.getElementById('ai-welcome').innerText = t.aiWelcome;
 
-    // تحديث نموذج التواصل
     let contactTitle = document.getElementById('contact-title');
     if(contactTitle) contactTitle.innerText = t.contactTitle;
     
@@ -132,7 +126,6 @@ function setLanguage(lang) {
     let btnSendEmail = document.getElementById('btn-send-email');
     if(btnSendEmail) btnSendEmail.innerText = t.btnSendEmail;
 
-    // تغيير اتجاه الصفحة (RTL / LTR)
     if (lang === 'ar') {
         body.classList.remove('ltr'); body.classList.add('rtl'); body.setAttribute('dir', 'rtl');
     } else {
@@ -140,10 +133,9 @@ function setLanguage(lang) {
     }
 }
 
-// 3. تبديل الثيم الداكن والفاتح وحفظه
+// 3. تبديل الثيم
 const themeBtn = document.getElementById('theme-toggle');
 
-// استرجاع الثيم المحفوظ عند فتح الصفحة
 if (localStorage.getItem('savedTheme') === 'dark') {
     document.body.classList.add('dark-mode');
     themeBtn.innerText = '☀️';
@@ -153,21 +145,17 @@ themeBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark-mode');
     let isDark = document.body.classList.contains('dark-mode');
     themeBtn.innerText = isDark ? '☀️' : '🌙';
-    localStorage.setItem('savedTheme', isDark ? 'dark' : 'light'); // الحفظ في المتصفح
+    localStorage.setItem('savedTheme', isDark ? 'dark' : 'light');
 });
 
-// 4. تطبيق الإعدادات عند تحميل الصفحة لأول مرة
+// 4. تطبيق الإعدادات عند التحميل
 document.addEventListener("DOMContentLoaded", () => {
-    // تشغيل اللغة المحفوظة
     setLanguage(currentLang);
-    // تفعيل أو إلغاء تفعيل الزر حسب اللغة
     langToggle.checked = (currentLang === 'ar');
-    
-    // تشغيل تأثير الكتابة التلقائي
     typeWriter();
 });
 
-// دالة إرسال الرسائل مع تأثير "البوت يكتب..."
+// دالة إرسال رسائل الشات
 async function sendMessage() {
     let inputField = document.getElementById("user-input");
     let message = inputField.value;
@@ -208,7 +196,7 @@ async function sendMessage() {
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// دعم الإرسال بزر Enter في صندوق المحادثة
+// Enter في الشات
 document.getElementById("user-input").addEventListener("keypress", function(event) {
     if (event.key === "Enter") {
         event.preventDefault(); 
@@ -216,27 +204,40 @@ document.getElementById("user-input").addEventListener("keypress", function(even
     }
 });
 
-// Contact Form Logic
+// ✅ Contact Form - EmailJS
 async function sendEmail() {
     const name = document.getElementById('contact-name').value;
     const email = document.getElementById('contact-email').value;
     const message = document.getElementById('contact-msg').value;
     const status = document.getElementById('email-status');
 
-    if(!name || !email || !message) { status.innerText = currentLang === 'ar' ? "أكمل البيانات!" : "Fill all fields!"; status.style.color = "red"; return; }
-    status.innerText = currentLang === 'ar' ? "جاري الإرسال..." : "Sending..."; status.style.color = "blue";
+    if (!name || !email || !message) {
+        status.innerText = currentLang === 'ar' ? "أكمل البيانات!" : "Fill all fields!";
+        status.style.color = "red";
+        return;
+    }
+
+    status.innerText = currentLang === 'ar' ? "جاري الإرسال..." : "Sending...";
+    status.style.color = "blue";
 
     try {
-        let response = await fetch("/send_email", {
-            method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, email, message })
+        await emailjs.send("service_0dlsqkt", "template_ae8bjts", {
+            from_name: name,
+            email: email,
+            message: message
         });
-        let data = await response.json();
-        if(data.status === "success") {
-            status.innerText = currentLang === 'ar' ? "تم الإرسال بنجاح!" : "Sent Successfully!"; status.style.color = "green";
-            document.getElementById('contact-name').value = ""; document.getElementById('contact-email').value = ""; document.getElementById('contact-msg').value = "";
-        } else { status.innerText = "Error: " + data.message; status.style.color = "red"; }
-    } catch (e) { status.innerText = currentLang === 'ar' ? "فشل الاتصال" : "Connection Failed"; status.style.color = "red"; }
+
+        status.innerText = currentLang === 'ar' ? "تم الإرسال بنجاح! ✅" : "Sent Successfully! ✅";
+        status.style.color = "green";
+        document.getElementById('contact-name').value = "";
+        document.getElementById('contact-email').value = "";
+        document.getElementById('contact-msg').value = "";
+
+    } catch (e) {
+        console.error(e);
+        status.innerText = currentLang === 'ar' ? "فشل الإرسال ❌" : "Failed to send ❌";
+        status.style.color = "red";
+    }
 }
 
 // Typing Effect
@@ -259,11 +260,10 @@ const observer = new IntersectionObserver((entries) => {
 });
 document.querySelectorAll(".reveal, .reveal-up, .reveal-left, .reveal-right").forEach(el => observer.observe(el));
 
-// تشغيل خلفية الجزيئات التقنية (Particles.js)
+// Particles.js
 document.addEventListener("DOMContentLoaded", function() {
-    // نحدد لون الجزيئات بناءً على الوضع الحالي (فاتح/داكن)
     let isDark = document.body.classList.contains('dark-mode');
-    let particleColor = isDark ? "#58a6ff" : "#2c3e50"; // أزرق للداكن، كحلي للفاتح
+    let particleColor = isDark ? "#58a6ff" : "#2c3e50";
     let lineColor = isDark ? "#30363d" : "#bdc3c7";
 
     particlesJS("particles-js", {
@@ -282,7 +282,7 @@ document.addEventListener("DOMContentLoaded", function() {
             },
             "move": {
                 "enable": true,
-                "speed": 2, /* سرعة هادئة ومريحة */
+                "speed": 2,
                 "direction": "none",
                 "random": false,
                 "straight": false,
@@ -293,8 +293,8 @@ document.addEventListener("DOMContentLoaded", function() {
         "interactivity": {
             "detect_on": "canvas",
             "events": {
-                "onhover": { "enable": true, "mode": "grab" }, /* تتفاعل مع الماوس */
-                "onclick": { "enable": true, "mode": "push" }, /* تزيد النقاط عند الضغط */
+                "onhover": { "enable": true, "mode": "grab" },
+                "onclick": { "enable": true, "mode": "push" },
                 "resize": true
             },
             "modes": {
