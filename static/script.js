@@ -52,7 +52,7 @@ const translations = {
 };
 
 // 1. استرجاع اللغة المحفوظة أو استخدام العربي كافتراضي
-let currentLang = localStorage.getItem('savedLang') || 'ar';
+let currentLang = localStorage.getItem('savedLang') || 'en';
 const langToggle = document.getElementById('langToggle');
 
 // 2. تطبيق تبديل اللغة وحفظها
