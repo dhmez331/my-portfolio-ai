@@ -305,3 +305,8 @@ document.addEventListener("DOMContentLoaded", function() {
         "retina_detect": true
     });
 });
+
+function toggleContact() {
+    const menu = document.getElementById('floatMenu');
+    menu.classList.toggle('active');
+}

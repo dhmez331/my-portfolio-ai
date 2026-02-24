@@ -18,7 +18,7 @@ from langchain_core.output_parsers import StrOutputParser
 
 import smtplib
 
-
+import random
 load_dotenv()
 
 app = Flask(__name__)
@@ -104,11 +104,30 @@ def ask_ai():
     user_question = data.get('message', '')
     user_lang = data.get('lang', 'ar')
 
-    # ✅ تعليمة اللغة بناءً على اختيار المستخدم
+    # ردود "ما أعرف" المتعددة
+    unknown_responses_ar = [
+        "ما أعرف 🤷‍♂️ اسأل عبدالرحمن مباشرة.",
+        "هذا خارج معلوماتي 😅 جرّب تسأل عبدالرحمن نفسه!",
+        "والله ما عندي فكرة عن هذا 🙈 بس عبدالرحمن يعرف!",
+        "سؤال صعب! 😬 ما لقيت جواب في ملفاتي.",
+        "هذا مو من اختصاصي 😎 كلّم عبدالرحمن مباشرة!",
+    ]
+
+    unknown_responses_en = [
+        "I don't know 🤷‍♂️ Ask Abdulrahman directly.",
+        "That's outside my knowledge! 😅 Try asking Abdulrahman himself.",
+        "Hmm, I couldn't find that in my files 🙈 Abdulrahman would know!",
+        "Tough question! 😬 No answer found in my data.",
+        "That's not my area 😎 Reach out to Abdulrahman directly!",
+    ]
+
+    # تعليمة اللغة بناءً على اختيار المستخدم
     if user_lang == 'en':
         lang_instruction = "You MUST reply in English only. Do not use Arabic under any circumstances, even if the CV data is in Arabic."
+        unknown_reply = random.choice(unknown_responses_en)
     else:
         lang_instruction = "يجب أن تجاوب بالعربي فقط. لا تستخدم الإنجليزي أبداً."
+        unknown_reply = random.choice(unknown_responses_ar)
 
     if not user_question:
         return jsonify({"answer": "اكتب سؤالك أول شي 😅"})
@@ -125,9 +144,8 @@ def ask_ai():
      أنت مسموح لك تجيب فقط من المعلومات الموجودة داخل الـ Context المرفق لك.
      أي سؤال خارج المعلومات الموجودة في الـ Context → لا تجاوب عليه.
 
-     إذا الإجابة غير موجودة داخل الـ Context قل حرفياً (بنفس لغة الرد):
-    - عربي: "ما أعرف 🤷‍♂️ اسأل عبدالرحمن مباشرة."
-    - إنجليزي: "I don't know 🤷‍♂️ Ask Abdulrahman directly."
+     إذا الإجابة غير موجودة داخل الـ Context قل حرفياً:
+    {unknown_reply}
 
     ممنوع:
     - استخدام معلوماتك العامة
@@ -172,15 +190,14 @@ def ask_ai():
                     "input": RunnablePassthrough()
                 }
                 | ChatPromptTemplate.from_messages([
-                    ("system", system_prompt + """
+                    ("system", system_prompt + f"""
 
             Context:
-            {context}
+            {{context}}
 
             تعليمات حاسمة:
-            - إذا كان الـ Context فارغ أو لا يحتوي معلومة مباشرة تجيب على السؤال قل:
-              (عربي) "ما أعرف 🤷‍♂️ اسأل عبدالرحمن مباشرة."
-              (إنجليزي) "I don't know 🤷‍♂️ Ask Abdulrahman directly."
+            - إذا كان الـ Context فارغ أو لا يحتوي معلومة مباشرة تجيب على السؤال قل حرفياً:
+            {unknown_reply}
             - لا تستخدم أي معرفة خارج الـ Context.
             - ⚠️ التزم بلغة الرد المحددة في تعليمة اللغة أعلاه.
             """),
@@ -193,17 +210,13 @@ def ask_ai():
             response = rag_chain.invoke(user_question)
 
         else:
-            return jsonify({
-                "answer": "ما أعرف 🤷‍♂️ اسأل عبدالرحمن مباشرة."
-            })
+            return jsonify({"answer": unknown_reply})
 
         return jsonify({"answer": response})
 
     except Exception as e:
         print("AI Error:", e)
         return jsonify({"answer": "صار فيه خطأ تقني بسيط 😵‍💫 حاول مرة ثانية."})
-
-
 # ==============================
 # إرسال إيميل
 # ==============================

@@ -7,6 +7,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+<!-- Floating Contact Button -->
+<div class="float-contact">
+    <button class="float-btn" onclick="toggleContact()">💬</button>
+    <div class="float-menu" id="floatMenu">
+        <a href="https://wa.me/966557825658" target="_blank" class="float-item whatsapp">
+            <span>واتساب</span> 📱
+        </a>
+        <a href="mailto:abdulrahmanasban@gmail.com" class="float-item email">
+            <span>إيميل</span> 📧
+        </a>
+    </div>
+</div>
 <body class="dark-mode rtl">
 
     <div id="particles-js"></div>
