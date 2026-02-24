@@ -310,3 +310,18 @@ function toggleContact() {
     const menu = document.getElementById('floatMenu');
     menu.classList.toggle('active');
 }
+
+// Scroll to Top
+const scrollTopBtn = document.getElementById('scrollTopBtn');
+
+window.addEventListener('scroll', () => {
+    if (window.scrollY > 300) {
+        scrollTopBtn.classList.add('visible');
+    } else {
+        scrollTopBtn.classList.remove('visible');
+    }
+});
+
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
