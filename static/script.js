@@ -29,7 +29,7 @@ const translations = {
         staticTxt: "I am an ",
         typingTexts: ["AI Developer", "Software Engineer", "RAG Systems Expert", "Student at APU"],
         btnContact: "Contact Me", btnProjects: "My Projects",
-        aiTitle: "🤖 Ask 'DahmanBot'", aiSub: "My Personal Assistant (Powered by Gemini AI)",
+        aiTitle: "🤖 Ask 'DahmanBot'", aiSub: "My Personal Assistant",
         expTitle: "Experience & Education", 
         exp1: "4-month internship in Riyadh. Designed RAG systems using LLMs and integrated AI solutions into real products.", 
         edu1: "BSc Computer Science (AI) with Honors. Dual Award with De Montfort University, UK.",
